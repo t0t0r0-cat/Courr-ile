@@ -1,0 +1,26 @@
+name: Build and publish Windows executable
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install build dependencies
+        run: python -m pip install beautifulsoup4 pyinstaller
+      - name: Build executable
+        run: pyinstaller --clean --noconfirm Courr-ile.spec
+      - name: Upload executable to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$env:GITHUB_REF_NAME" dist/Courr-Ile.exe --clobber
